@@ -121,5 +121,42 @@ def diff(*args):
     # 결과 리스트의 모든 요소를 공백으로 연결하여 최종 문자열을 반환합니다.
     return ' '.join(result_parts)
 
+def ndiff(operators, terms_string):
+    """
+    문자열 입력을 파싱하여 diff 함수를 대신 호출해 주는 편의 함수입니다.
+    
+    Args:
+        operators (str): '+'와 '-'로 구성된 연산자 문자열 (예: '+-')
+        terms_string (str): '계수 지수' 쌍이 콤마로 구분된 문자열 (예: '7 5,8 4,22 1')
+    """
+    # '7 5,8 4,22 1' -> ['7 5', '8 4', '22 1']
+    term_pairs = terms_string.split(',')
+    
+    # diff 함수에 전달할 인자 리스트
+    args_for_diff = []
+    
+    # term_pairs를 순회하며 x() 객체와 연산자를 번갈아 리스트에 추가
+    for i, pair in enumerate(term_pairs):
+        # '7 5' -> ['7', '5'] -> coefficient=7, exponent=5
+        coeff, exp = map(int, pair.split())
+        
+        # x(7, 5)와 같이 PolynomialTerm 객체를 생성하여 추가
+        args_for_diff.append(x(coeff, exp))
+        
+        # 마지막 항이 아닐 경우, 연산자 리스트에서 연산자를 하나씩 추가
+        if i < len(operators):
+            args_for_diff.append(operators[i])
+            
+    # 최종적으로 만들어진 인자 리스트를 diff 함수에 전달
+    # *args_for_diff는 리스트의 모든 요소를 개별 인자로 풀어주는 역할을 합니다.
+    return diff(*args_for_diff)
+def l():
+    print('----------------------------------------------------------------------------')
 result = diff(x(7,5), '+', x(8,4), '-', x(22,1))
+print(result)
+l()
+result = ndiff('+-', '7 5,8 4,22 1')
+print(result)
+l()
+result = ndiff('--+', '7 5,8 4,6 3,22 1')
 print(result)
